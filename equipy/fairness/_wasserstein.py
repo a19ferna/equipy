@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 from ..utils.checkers import _check_epsilon, _check_epsilon_size, _check_mod, _check_shape, _check_nb_observations, _check_col, _check_unique_mod
 from ._base import BaseHelper
-from typing import Optional
+from typing import Optional, Union
 
 
 class FairWasserstein(BaseHelper):
@@ -45,16 +45,16 @@ class FairWasserstein(BaseHelper):
         self.modalities_calib = None
         self.columns_calib = None
 
-    def fit(self, y: np.ndarray, sensitive_feature: pd.DataFrame) -> None:
+    def fit(self, y: Union[pd.Series, np.ndarray], sensitive_feature: Union[pd.DataFrame, np.ndarray]) -> None:
         """
         Perform fit on the calibration data and save the ECDF, EQF, and weights of the sensitive variable.
 
         Parameters
         ----------
-        y : np.ndarray, shape (n_samples,)
+        y : pd.Series or np.ndarray, shape (n_samples,)
             The calibration labels.
 
-        sensitive_feature : pd.DataFrame, shape (n_samples, 1)
+        sensitive_feature : pd.DataFrame or np.ndarray shape (n_samples, 1)
             The calibration samples representing one single sensitive attribute.
 
         Returns
@@ -76,6 +76,10 @@ class FairWasserstein(BaseHelper):
         >>> wasserstein.fit(y, sensitive_feature)
         """
         _check_shape(y, sensitive_feature)
+        if y == pd.Series():
+            y = self._series_to_array(y)
+        if sensitive_feature == np.ndarray():
+            sensitive_feature = self._array_to_dataframe(sensitive_feature)
         _check_unique_mod(sensitive_feature)
 
         self.modalities_calib = self._get_modalities(sensitive_feature)
@@ -132,6 +136,10 @@ class FairWasserstein(BaseHelper):
 
         _check_epsilon(epsilon)
         _check_shape(y, sensitive_feature)
+        if y == pd.Series():
+            y = self._series_to_array(y)
+        if sensitive_feature == np.ndarray():
+            sensitive_feature = self._array_to_dataframe(sensitive_feature)
         modalities_test = self._get_modalities(sensitive_feature)
         columns_test = sensitive_feature.columns
         _check_mod(self.modalities_calib, modalities_test)
@@ -195,7 +203,7 @@ class FairWasserstein(BaseHelper):
         return self.transform(y_test, sensitive_feature_test, epsilon)
 
 
-class MultiWasserstein():
+class MultiWasserstein(BaseHelper):
     """
     Class extending FairWasserstein for multi-sensitive attribute fairness adjustment.
 
@@ -236,6 +244,7 @@ class MultiWasserstein():
         -------
         None
         """
+        super.__init__()
 
         self.y_fair = {}
 
@@ -272,8 +281,12 @@ class MultiWasserstein():
         based on the provided calibration data. These computed values are used
         during the transformation process to ensure fairness in predictions.
         """
-        _check_nb_observations(sensitive_features)
         _check_shape(y, sensitive_features)
+        if y == pd.Series():
+            y = self._series_to_array(y)
+        if sensitive_features == np.ndarray():
+            sensitive_features = self._array_to_dataframe(sensitive_features)
+        _check_nb_observations(sensitive_features)
         self.columns_calib_all = sensitive_features.columns
 
         for i, col in enumerate(sensitive_features.columns):
@@ -335,6 +348,11 @@ class MultiWasserstein():
         >>> print(fair_predictions)
         [0.42483123 0.36412012 0.36172012 0.36112012]
         """
+        if y == pd.Series():
+            y = self._series_to_array(y)
+        if sensitive_features == np.ndarray():
+            sensitive_features = self._array_to_dataframe(sensitive_features)
+            
         if epsilon is None:
             if sensitive_features.shape[1] == 1:
                 epsilon = [0]

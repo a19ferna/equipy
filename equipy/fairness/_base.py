@@ -34,6 +34,14 @@ class BaseHelper():
 
         self.weights = {}
 
+    def _series_to_array(self, y:pd.Series) -> np.ndarray:
+        return y.values
+    
+    def _array_to_dataframe(self, sensitive_features:np.array) -> pd.DataFrame:
+        num_columns = sensitive_features.shape[1]  
+        column_names = [f"sensitive_feature_{i}" for i in range(num_columns)]  
+        return pd.DataFrame(sensitive_features, columns=column_names)
+
     def _get_modalities(self, sensitive_feature: pd.DataFrame) -> set:
         """
         Get unique modalities from the input sensitive attribute DataFrame.
