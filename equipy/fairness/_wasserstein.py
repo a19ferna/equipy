@@ -244,7 +244,7 @@ class MultiWasserstein(BaseHelper):
         -------
         None
         """
-        super.__init__()
+        super().__init__()
 
         self.y_fair = {}
 
