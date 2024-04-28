@@ -116,7 +116,7 @@ def _check_nb_observations(sensitive_features: pd.DataFrame) -> None:
         raise ValueError("Fairness correction can not be applied on a single observation")
 
 
-def _check_shape(y: Union[np.ndarray, pd.Series], sensitive_features: Union[pd.DataFrame, pd.DataFrame]) -> None:
+def _check_shape(y: np.ndarray, sensitive_features: pd.DataFrame) -> None:
     """
     Check the shape and data types of input arrays y and sensitive_feature.
 
@@ -132,11 +132,11 @@ def _check_shape(y: Union[np.ndarray, pd.Series], sensitive_features: Union[pd.D
     ValueError
         If the input arrays have incorrect shapes or data types.
     """
-    if not isinstance(sensitive_features, Union[pd.DataFrame, np.ndarray]):
-        raise ValueError('sensitive_features must be a pandas DataFrame or an array')
+    if not isinstance(sensitive_features, pd.DataFrame):
+        raise ValueError('sensitive_features must be a pandas DataFrame')
 
-    if not isinstance(y, Union[np.ndarray, pd.Series]):
-        raise ValueError('y must be an array or a pandas Series')
+    if not isinstance(y, np.ndarray):
+        raise ValueError('y must be an array')
 
     if len(sensitive_features) != len(y):
         raise ValueError(
@@ -144,6 +144,7 @@ def _check_shape(y: Union[np.ndarray, pd.Series], sensitive_features: Union[pd.D
     
     if not (np.issubdtype(y.dtype, np.floating) or np.issubdtype(y.dtype, np.integer)):
         raise ValueError('y should contain only float or integer numbers')
+
 
 def _check_unique_mod(sensitive_feature: pd.DataFrame) -> None:
     """

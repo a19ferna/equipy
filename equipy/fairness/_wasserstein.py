@@ -75,11 +75,11 @@ class FairWasserstein(BaseHelper):
         >>> sensitive_feature = pd.DataFrame({'nb_child': [1, 2, 0, 2]})
         >>> wasserstein.fit(y, sensitive_feature)
         """
-        _check_shape(y, sensitive_feature)
-        if y == pd.Series():
+        if isinstance(y,pd.Series):
             y = self._series_to_array(y)
-        if sensitive_feature == np.ndarray():
+        if isinstance(sensitive_feature, np.ndarray):
             sensitive_feature = self._array_to_dataframe(sensitive_feature)
+        _check_shape(y, sensitive_feature)
         _check_unique_mod(sensitive_feature)
 
         self.modalities_calib = self._get_modalities(sensitive_feature)
@@ -133,13 +133,12 @@ class FairWasserstein(BaseHelper):
         >>> print(wasserstein.transform(y, sensitive_feature, epsilon=0.2))
         [0.26063673 0.69140959 0.68940959 0.26663673]
         """
-
+        if isinstance(y,pd.Series):
+            y = self._series_to_array(y)
+        if isinstance(sensitive_feature, np.ndarray):
+            sensitive_feature = self._array_to_dataframe(sensitive_feature)
         _check_epsilon(epsilon)
         _check_shape(y, sensitive_feature)
-        if y == pd.Series():
-            y = self._series_to_array(y)
-        if sensitive_feature == np.ndarray():
-            sensitive_feature = self._array_to_dataframe(sensitive_feature)
         modalities_test = self._get_modalities(sensitive_feature)
         columns_test = sensitive_feature.columns
         _check_mod(self.modalities_calib, modalities_test)
@@ -281,11 +280,11 @@ class MultiWasserstein(BaseHelper):
         based on the provided calibration data. These computed values are used
         during the transformation process to ensure fairness in predictions.
         """
-        _check_shape(y, sensitive_features)
-        if y == pd.Series():
+        if isinstance(y,pd.Series):
             y = self._series_to_array(y)
-        if sensitive_features == np.ndarray():
+        if isinstance(sensitive_features, np.ndarray):
             sensitive_features = self._array_to_dataframe(sensitive_features)
+        _check_shape(y, sensitive_features)
         _check_nb_observations(sensitive_features)
         self.columns_calib_all = sensitive_features.columns
 
@@ -348,9 +347,9 @@ class MultiWasserstein(BaseHelper):
         >>> print(fair_predictions)
         [0.42483123 0.36412012 0.36172012 0.36112012]
         """
-        if y == pd.Series():
+        if isinstance(y,pd.Series):
             y = self._series_to_array(y)
-        if sensitive_features == np.ndarray():
+        if isinstance(sensitive_features, np.ndarray):
             sensitive_features = self._array_to_dataframe(sensitive_features)
             
         if epsilon is None:
